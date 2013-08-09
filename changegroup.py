@@ -334,7 +334,7 @@ def main(named_conf):
 if __name__ == '__main__':
     print "=" * 64
     if len(sys.argv) != 2:
-        print "ERROR: Wrong usage. Usage: update.py path/to/named.conf"
+        print "ERROR: Wrong usage. Usage: changegroup.py path/to/named.conf"
         exit_status = 2
     else:
         named_conf = sys.argv[1]
