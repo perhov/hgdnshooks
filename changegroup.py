@@ -28,6 +28,7 @@ import datetime
 import pyparsing
 import socket
 import subprocess
+import tempfile
 
 
 def print_indented(msg, longmsg=None):
@@ -127,9 +128,19 @@ def list_modified_files():
     return files.splitlines()
 
 
-def fix_serial(filename, serialnumber):
+def update_zonefile(filename, serialnumber):
     """Increment the serial number in the SOA record of the zone file."""
-    pass
+    search = r"^(\s*)([0-9]+)(\s*;\s*Serialnumber\s*)$"
+    replace = r"\g<1>%s\g<3>" % serialnumber
+    rx = re.compile(search, re.MULTILINE)
+    contents = open(filename).read()
+    if not rx.search(contents):
+        return False
+    contents = rx.sub(replace, contents)
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp.write(contents)
+    os.rename(tmp.name, filename)
+    return True
 
 
 def merge():
@@ -222,8 +233,11 @@ def auto_increment(zonefiles, serialnumber):
             print_indented(fmt % filename + " => ignored")
             continue
         try:
-            fix_serial(filename, serialnumber)
-            print_indented(fmt % filename + " => %s" % serialnumber)
+            if update_zonefile(filename, serialnumber):
+                print_indented(fmt % filename + " => %s" % serialnumber)
+            else:
+                print_indented(fmt % filename + " => failed")
+                all_ok = False
         except IOError as e:
             print_indented(fmt % filename + " => %s" % e.strerror)
             all_ok = False
