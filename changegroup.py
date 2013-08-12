@@ -222,7 +222,7 @@ def generate_dependencies(named_conf):
 
 def auto_increment(zonefiles, serialnumber):
     """Increment the serial number of the zone files and pretty-print
-    diagnostic output to stderr. Zone files outside of the repository
+    diagnostic output to stdout. Zone files outside of the repository
     are ignored.
     """
     all_ok = True
