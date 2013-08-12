@@ -47,7 +47,7 @@ def load_serialnumber(serialfile):
     except:
         savednumber = 0
     todaysnumber = int(datetime.datetime.now().strftime("%Y%m%d00"))
-    serialnumber = max(savednumber+1, todaysnumber)
+    serialnumber = max(savednumber+1, todaysnumber) % 2**32
     return serialnumber
 
 
