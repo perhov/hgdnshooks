@@ -139,6 +139,7 @@ def update_zonefile(filename, serialnumber):
     contents = rx.sub(replace, contents)
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(contents)
+    os.chmod(tmp.name, 0644)
     os.rename(tmp.name, filename)
     return True
 
