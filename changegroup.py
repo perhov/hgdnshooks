@@ -317,11 +317,11 @@ def main(named_conf):
     print "Step 4/5: Committing:"
     try:
         info = commit(serialnumber)
+        print_indented(info)
     except subprocess.CalledProcessError as e:
         # Commit failed, bail out
         print_indented("ERROR: commit failed:", e.output)
         errors = True
-    print_indented(info)
 
     # Step 4b: Save serialnumber (silently), but only if it's been used
     try:
