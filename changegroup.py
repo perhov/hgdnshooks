@@ -25,6 +25,7 @@ import os
 import re
 import sys
 import datetime
+import getpass
 import pyparsing
 import socket
 import subprocess
@@ -111,8 +112,9 @@ def parse_named_conf(configfile):
 def whoami():
     """Return a string to be used as author of the commits we do."""
     script = sys.argv[0]
+    user = getpass.getuser()
     host = socket.getfqdn()
-    return "%s:%s" % (host, script)
+    return "%s <%s@%s>" % (script, user, host)
 
 
 def hg(*args):
