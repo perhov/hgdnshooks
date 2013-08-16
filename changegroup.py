@@ -204,7 +204,8 @@ def generate_dependencies(named_conf):
 
     Then, use this graph along with a list of the modified (merged)
     files to construct a list of zone files where the serial number
-    must be incremented.
+    must be incremented. The zone files are returned in alphabetical
+    order.
     """
     options, zones = parse_named_conf(named_conf)
     reporoot = hg('root')
@@ -222,7 +223,7 @@ def generate_dependencies(named_conf):
     for filename in list_modified_files():
         if filename in reverse_deps:
             files.update(reverse_deps[filename])
-    return files
+    return sorted(files)
  
 
 def auto_increment(zonefiles, serialnumber):
