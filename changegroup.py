@@ -285,12 +285,12 @@ def main(named_conf):
     print "Step 1/5: Merging file(s):"
     try:
         files = merge()
+        print_indented(None, files)
     except subprocess.CalledProcessError as e:
         # Merge failed, bail out
         print_indented("ERROR: Merge failed:", e.output)
         print_indented("Manual intervention required. Sorry!")
         return False
-    print_indented(None, files)
 
     # Step 2/5: Generate dependencies
     print "Step 2/5: Generating dependencies from '%s':" % named_conf
