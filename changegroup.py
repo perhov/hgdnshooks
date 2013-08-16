@@ -193,16 +193,18 @@ def get_includes(zonefile):
     
 
 def generate_dependencies(named_conf):
-    """Return a dictionary representing the reverse dependency graph of
-    the files included by the zone files defined in named.conf.
-    
+    """Return a list of files in need of a serial number increment.
+
+    First, build a dictionary representing the reverse dependency graph
+    of the files included by the zone files defined in named.conf.
     The keys of the dictionary are the zone files referenced to by
     named.conf, as well as any files included by these zones.
-
     The values are a list of the zone files that are affected by a
-    change in that file.
-    
-    A zone file depends implicitly on itself.
+    change in that file. A zone file depends implicitly on itself.
+
+    Then, use this graph along with a list of the modified (merged)
+    files to construct a list of zone files where the serial number
+    must be incremented.
     """
     options, zones = parse_named_conf(named_conf)
     reporoot = hg('root')
