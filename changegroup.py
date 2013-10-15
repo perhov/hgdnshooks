@@ -15,6 +15,7 @@
 source_branch="default"
 production_branch="production"
 serialfile=".hg/serialnumber"
+ansi_colors=False
 
 hg_cmd="/usr/bin/hg"
 checkconf_cmd="/usr/sbin/named-checkconf"
@@ -275,7 +276,13 @@ def reload():
 
 
 def main(named_conf):
-    global serialfile, source_branch, production_branch
+    global serialfile, source_branch, production_branch, ansi_colors
+    if ansi_colors:
+        red = lambda x: "\x1b[1;31m" + x + "\x1b[0;0m"
+        green = lambda x: "\x1b[1;32m" + x + "\x1b[0;0m"
+    else:
+        red = green = lambda x: x
+
     if hg('branch') != production_branch:
         print "ERROR: This script should only be run as a hook"
         print "(in the '%s' branch on the DNS server repo)." % production_branch
@@ -291,7 +298,7 @@ def main(named_conf):
         print_indented(None, files)
     except subprocess.CalledProcessError as e:
         # Merge failed, bail out
-        print_indented("ERROR: Merge failed:", e.output)
+        print_indented(red("ERROR: Merge failed:"), e.output)
         print_indented("Manual intervention required. Sorry!")
         return False
 
@@ -301,10 +308,10 @@ def main(named_conf):
     try:
         zonefiles = generate_dependencies(named_conf)
     except (IOError, OSError) as e:
-        print_indented("ERROR: %s: %s" % (e.filename, e.strerror))
+        print_indented(red("ERROR: %s: %s" % (e.filename, e.strerror)))
         errors = True
     except subprocess.CalledProcessError as e:
-        print_indented("ERROR: named-checkconf failed:", e.output)
+        print_indented(red("ERROR: named-checkconf failed:"), e.output)
         errors = True
 
     # Step 3/5: Autoincrement
@@ -323,7 +330,7 @@ def main(named_conf):
         print_indented(info)
     except subprocess.CalledProcessError as e:
         # Commit failed, bail out
-        print_indented("ERROR: commit failed:", e.output)
+        print_indented(red("ERROR: commit failed:"), e.output)
         errors = True
 
     # Step 4b: Save serialnumber (silently), but only if it's been used
@@ -331,7 +338,7 @@ def main(named_conf):
         if zonefiles and len(zonefiles):
             save_serialnumber(serialfile, serialnumber)
     except IOError as e:
-        print_indented("ERROR: Couldn't save '%s': %s" % (e.filename, e.strerror))
+        print_indented(red("ERROR: Couldn't save '%s': %s" % (e.filename, e.strerror)))
         errors = True
 
     # Step 5/5: Reload
@@ -344,9 +351,9 @@ def main(named_conf):
             reload()
             print_indented("OK")
         except subprocess.CalledProcessError as e:
-            print_indented("ERROR: reload failed:", e.output)
+            print_indented(red("ERROR: reload failed:"), e.output)
             return False
-    print "All steps completed successfully!"
+    print green("All steps completed successfully!")
     return True
 
 
