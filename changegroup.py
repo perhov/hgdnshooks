@@ -353,6 +353,7 @@ def main(named_conf):
         except subprocess.CalledProcessError as e:
             print_indented(red("ERROR: reload failed:"), e.output)
             return False
+    print "=" * 64
     print green("All steps completed successfully!")
     return True
 
