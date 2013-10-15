@@ -159,11 +159,12 @@ def merge():
     return hg('status', '-amn')
 
 
-def get_includes(zonefile):
+def get_includes(zonefile, basedir):
     """Return a list of the external files included by a zone file.
     
     Files must be included with RFC 1035 syntax.
     Nested includes are not supported.
+    'basedir' must contain the options->directory value from named.conf.
     """
     pattern = r"""
         ^\s*\$INCLUDE\s+     # $INCLUDE directive (ignore leading space)
@@ -181,13 +182,12 @@ def get_includes(zonefile):
         match = rx.match(line)
         if match:
             files.add(match.group('filename'))
-    # The included files are relative to the zone file, which is
-    # relative to the options->directory statement in named.conf,
-    # which may or may not coincide with the repository root.
+    # The included files are relative to the options->directory
+    # statement in named.conf, which may or may not coincide with
+    # the repository root.
     # We want file names relative to the repository root:
-    zonefiledir = os.path.dirname(zonefile)
     reporoot = hg('root')
-    files = [os.path.join(zonefiledir, f) for f in files]
+    files = [os.path.join(basedir, f) for f in files]
     files = [os.path.relpath(f, start=reporoot) for f in files]
     return files
     
@@ -214,7 +214,7 @@ def generate_dependencies(named_conf):
         zonefile = os.path.join(options['directory'], opts['file'])
         zonefile = os.path.relpath(zonefile, start=reporoot)
         try:
-            includes = get_includes(zonefile)
+            includes = get_includes(zonefile, options['directory'])
             for file in [zonefile] + includes:
                 reverse_deps.setdefault(file, []).append(zonefile)
         except IOError as e:
