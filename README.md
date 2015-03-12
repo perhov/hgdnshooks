@@ -53,7 +53,7 @@ hgdnshooks requires:
   * [python](http://www.python.org) 2.6 or newer
   * [pyparsing](https://pypi.python.org/pypi/pyparsing) 1.5 or newer
 
-The existing zone files needs to have the SOA serial number on a line
+The existing zone files need to have the SOA serial number on a line
 by itself, and the line must end with the comment `; Serialnumber`.
 Example:
 
