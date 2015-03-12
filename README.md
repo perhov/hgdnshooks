@@ -53,6 +53,19 @@ hgdnshooks requires:
   * [python](http://www.python.org) 2.6 or newer
   * [pyparsing](https://pypi.python.org/pypi/pyparsing) 1.5 or newer
 
+The existing zone files needs to have the SOA serial number on a line
+by itself, and the line must end with the comment `; Serialnumber`.
+Example:
+
+    :::text
+    $ORIGIN example.com.
+    @	IN	SOA	ns.example.com. hostmaster.example.com. (
+    				0000000000 ; Serialnumber
+    				3600    ; Refresh
+    				900     ; Retry
+    				604800  ; Expire
+    				3600 )  ; Minimum TTL
+
 ### Step 2: Create the repository
 
 Convert the directory containing your DNS zone data to a Mercurial
