@@ -57,14 +57,15 @@ The existing zone files need to have the SOA serial number on a line
 by itself, and the line must end with the comment `; Serialnumber`.
 Example:
 
-    :::text
-    $ORIGIN example.com.
-    @	IN	SOA	ns.example.com. hostmaster.example.com. (
-    				0000000000 ; Serialnumber
-    				3600    ; Refresh
-    				900     ; Retry
-    				604800  ; Expire
-    				3600 )  ; Minimum TTL
+```
+$ORIGIN example.com.
+@	IN	SOA	ns.example.com. hostmaster.example.com. (
+				0000000000 ; Serialnumber
+				3600    ; Refresh
+				900     ; Retry
+				604800  ; Expire
+				3600 )  ; Minimum TTL
+```
 
 ### Step 2: Create the repository
 
@@ -72,25 +73,28 @@ Convert the directory containing your DNS zone data to a Mercurial
 repository (or, if you have an existing repository, push it to the
 DNS server):
 
-    :::text
-    server:/# cd /etc/bind
-    server:/etc/bind# hg init
-    server:/etc/bind# hg add
-    server:/etc/bind# hg commit
+```
+server:/# cd /etc/bind
+server:/etc/bind# hg init
+server:/etc/bind# hg add
+server:/etc/bind# hg commit
+```
 
 Then create the _production_ branch and switch to it:
 
-    :::text
-    server:/etc/bind# hg branch production
+```
+server:/etc/bind# hg branch production
+```
 
 ### Step 3: Install hgdnshooks
 
 Clone the hgdnshooks repository into a subdirectory of the `.hg`
 directory on the DNS server:
 
-    :::text
-    server:/etc/bind# cd .hg
-    server:/etc/bind/.hg# hg clone https://bitbucket.org/perhov/hgdnshooks
+```
+server:/etc/bind# cd .hg
+server:/etc/bind/.hg# git clone https://github.com/perhov/hgdnshooks.git
+```
 
 A directory `/etc/bind/.hg/hgdnshooks` will appear, containing the
 `prechangegroup.sh` and `changegroup.py` scripts.
@@ -99,10 +103,11 @@ A directory `/etc/bind/.hg/hgdnshooks` will appear, containing the
 
 Add the following hooks to the `.hg/hgrc` file:
 
-    :::text
-    [hooks]
-    prechangegroup = sh .hg/hgdnshooks/prechangegroup.sh
-    changegroup = python .hg/hgdnshooks/changegroup.py named.conf
+```
+[hooks]
+prechangegroup = sh .hg/hgdnshooks/prechangegroup.sh
+changegroup = python .hg/hgdnshooks/changegroup.py named.conf
+```
 
 This assumes that your BIND configfile is `named.conf` and is located
 in the root (top-level directory) of your repository. If not, replace
@@ -138,30 +143,31 @@ handled according to [RFC 1982](http://tools.ietf.org/rfc/rfc1982.txt).
 
 In this example, the zone files are stored in the `pz/` subdirectory:
 
-    :::text
-    client:/path/to/clone$ emacs pz/example.com
-      <modify zone data>
-    client:/path/to/clone$ hg commit
-    client:/path/to/clone$ hg push
-    pushing to ssh://server//etc/bind
-    searching for changes
-    adding changesets
-    adding manifests
-    adding file changes
-    added 1 changesets with 1 changes to 1 files (+1 heads)
-    ================================================================
-    Step 1/5: Merging file(s):
-              pz/example.com
-    Step 2/5: Generating dependencies from 'named.conf':
-    Step 3/5: Incrementing serial numbers:
-              pz/example.com => 2014011100
-    Step 4/5: Committing:
-              Revision 4c6a148a37d2 on branch 'production'
-    Step 5/5: Reloading nameserver:
-              OK
-    ================================================================
-    All steps completed successfully!
-    ================================================================
+```
+client:/path/to/clone$ emacs pz/example.com
+  <modify zone data>
+client:/path/to/clone$ hg commit
+client:/path/to/clone$ hg push
+pushing to ssh://server//etc/bind
+searching for changes
+adding changesets
+adding manifests
+adding file changes
+added 1 changesets with 1 changes to 1 files (+1 heads)
+================================================================
+Step 1/5: Merging file(s):
+          pz/example.com
+Step 2/5: Generating dependencies from 'named.conf':
+Step 3/5: Incrementing serial numbers:
+          pz/example.com => 2014011100
+Step 4/5: Committing:
+          Revision 4c6a148a37d2 on branch 'production'
+Step 5/5: Reloading nameserver:
+          OK
+================================================================
+All steps completed successfully!
+================================================================
+```
 
 Even though you may have several zones configured, only the changed
 zone is incremented.
@@ -172,35 +178,37 @@ In this example, the zone files are stored in the `pz/` subdirectory,
 and they include some files from the `inc/` subdirectory.
 The `pz/example.com` zone file contains this line:
 
-    :::text
-    $INCLUDE inc/subdomain.example.com
+```
+$INCLUDE inc/subdomain.example.com
+```
 
 and when you edit this file, hgdnshooks increments the SOA serial
 number of example.com:
 
-    :::text
-    client:/path/to/clone$ emacs inc/subdomain.example.com
-    client:/path/to/clone$ hg commit
-    client:/path/to/clone$ hg push
-    pushing to ssh://server//etc/bind
-    searching for changes
-    adding changesets
-    adding manifests
-    adding file changes
-    added 1 changesets with 1 changes to 1 files (+1 heads)
-    ================================================================
-    Step 1/5: Merging file(s):
-              inc/subdomain.example.com
-    Step 2/5: Generating dependencies from 'named.conf':
-    Step 3/5: Incrementing serial numbers:
-              pz/example.com => 2014011102
-    Step 4/5: Committing:
-              Revision b3d95d3a8abc on branch 'production'
-    Step 5/5: Reloading nameserver:
-              OK
-    ================================================================
-    All steps completed successfully!
-    ================================================================
+```
+client:/path/to/clone$ emacs inc/subdomain.example.com
+client:/path/to/clone$ hg commit
+client:/path/to/clone$ hg push
+pushing to ssh://server//etc/bind
+searching for changes
+adding changesets
+adding manifests
+adding file changes
+added 1 changesets with 1 changes to 1 files (+1 heads)
+================================================================
+Step 1/5: Merging file(s):
+          inc/subdomain.example.com
+Step 2/5: Generating dependencies from 'named.conf':
+Step 3/5: Incrementing serial numbers:
+          pz/example.com => 2014011102
+Step 4/5: Committing:
+          Revision b3d95d3a8abc on branch 'production'
+Step 5/5: Reloading nameserver:
+          OK
+================================================================
+All steps completed successfully!
+================================================================
+```
 
 If you have several zones including the same file (e.g. _example.com_
 and _example.net_ including common data from a single file), both
