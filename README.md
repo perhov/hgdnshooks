@@ -219,4 +219,4 @@ zone files will be incremented if you change the included file.
 ## Known bugs
 
 Automatic serial number rollover will stop working in
-[year 2147](https://bitbucket.org/perhov/hgdnshooks/commits/5fafce12c7055509983638221fa9e51f9785dda9).
+[year 2147](https://github.com/perhov/hgdnshooks/commit/dee9c4c).
