@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #
 # changegroup.py
@@ -36,10 +36,10 @@ import tempfile
 def print_indented(msg, longmsg=None):
     """Pretty-print single- or multi-line messages to stdout."""
     if msg:
-        print " "*10 + msg
+        print(" "*10 + msg)
     if longmsg:
         for line in longmsg.splitlines():
-            print " "*10 + line
+            print(" "*10 + line)
 
 
 def load_serialnumber(serialfile):
@@ -142,7 +142,7 @@ def update_zonefile(filename, serialnumber):
     contents = rx.sub(replace, contents)
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(contents)
-    os.chmod(tmp.name, 0644)
+    os.chmod(tmp.name, 0o644)
     os.rename(tmp.name, filename)
     return True
 
@@ -211,7 +211,7 @@ def generate_dependencies(named_conf):
     options, zones = parse_named_conf(named_conf)
     reporoot = hg('root')
     reverse_deps = {}
-    for zone, opts in zones.iteritems():
+    for zone, opts in zones.items():
         zonefile = os.path.join(options['directory'], opts['file'])
         zonefile = os.path.relpath(zonefile, start=reporoot)
         try:
@@ -234,7 +234,7 @@ def auto_increment(zonefiles, serialnumber):
     """
     all_ok = True
     reporoot = os.path.realpath(hg('root')) + '/'
-    fmt = "%%-%ds" % max(map(len, zonefiles))
+    fmt = "%%-%ds" % max(list(map(len, zonefiles)))
     for filename in zonefiles:
         if not os.path.realpath(filename).startswith(reporoot):
             print_indented(fmt % filename + " => ignored")
@@ -284,15 +284,15 @@ def main(named_conf):
         red = green = lambda x: x
 
     if hg('branch') != production_branch:
-        print "ERROR: This script should only be run as a hook"
-        print "(in the '%s' branch on the DNS server repo)." % production_branch
+        print("ERROR: This script should only be run as a hook")
+        print("(in the '%s' branch on the DNS server repo)." % production_branch)
         return False
 
     # Step 0/5:
     errors = False
 
     # Step 1/5: Merge endringer fra 'default'-branchen.
-    print "Step 1/5: Merging file(s):"
+    print("Step 1/5: Merging file(s):")
     try:
         files = merge()
         print_indented(None, files)
@@ -303,7 +303,7 @@ def main(named_conf):
         return False
 
     # Step 2/5: Generate dependencies
-    print "Step 2/5: Generating dependencies from '%s':" % named_conf
+    print("Step 2/5: Generating dependencies from '%s':" % named_conf)
     zonefiles = None
     try:
         zonefiles = generate_dependencies(named_conf)
@@ -315,7 +315,7 @@ def main(named_conf):
         errors = True
 
     # Step 3/5: Autoincrement
-    print "Step 3/5: Incrementing serial numbers:"
+    print("Step 3/5: Incrementing serial numbers:")
     serialnumber = load_serialnumber(serialfile)
     if zonefiles is None:
         print_indented("(skipped due to missing dependencies)")
@@ -324,7 +324,7 @@ def main(named_conf):
             errors = True
 
     # Step 4/5: Commit
-    print "Step 4/5: Committing:"
+    print("Step 4/5: Committing:")
     try:
         info = commit(serialnumber)
         print_indented(info)
@@ -343,30 +343,30 @@ def main(named_conf):
 
     # Step 5/5: Reload
     if errors:
-        print "Step 5/5: NOT reloading nameserver due to errors."
+        print("Step 5/5: NOT reloading nameserver due to errors.")
         return False
     else:
-        print "Step 5/5: Reloading nameserver:"
+        print("Step 5/5: Reloading nameserver:")
         try:
             reload()
             print_indented("OK")
         except subprocess.CalledProcessError as e:
             print_indented(red("ERROR: reload failed:"), e.output)
             return False
-    print "=" * 64
-    print green("All steps completed successfully!")
+    print("=" * 64)
+    print(green("All steps completed successfully!"))
     return True
 
 
 
 if __name__ == '__main__':
-    print "=" * 64
+    print("=" * 64)
     if len(sys.argv) != 2:
-        print "ERROR: Wrong usage. Usage: changegroup.py path/to/named.conf"
+        print("ERROR: Wrong usage. Usage: changegroup.py path/to/named.conf")
         exit_status = 2
     else:
         named_conf = sys.argv[1]
         rc = main(named_conf)
         exit_status = 0 if rc==True else 1
-    print "=" * 64
+    print("=" * 64)
     sys.exit(exit_status)
